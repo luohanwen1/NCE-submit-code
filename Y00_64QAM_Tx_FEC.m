@@ -101,11 +101,9 @@ scrDataI = scrDataI-4;
 scrDataQ = scrambler(tx_Qdsm.');
 scrDataQ = scrDataQ-4;
 tx_dsm = scrDataI.' +1i*scrDataQ.';
-%% FEC RS（255，239）
-[txSig,add] = QAMFECEncode(tx_dsm.',16,255,239);
-tx_I = real(txSig);
-tx_Q = imag(txSig);
-save ('testdata.mat',"tx_Q","tx_I","add");
+tx_I = real(tx_dsm);
+tx_Q = imag(tx_dsm);
+save ('testdata.mat',"tx_Q","tx_I");
 %%
 function v =DSMfunction(sig,band,L,M,bitM,inputM,k)
 osr = L/M;      
@@ -126,17 +124,5 @@ ABCD = stuffABCD(a,g,b,c,form);
 l=1+0.1*k*bitM;
 dataOStemp = dataOS*l;
 v = simulateDSM(dataOStemp,ABCD,nlev);
-end
-
-function [txSig,addbit] = QAMFECEncode(sig,M,N,K)
-txData1 = qamdemod(sig,M,'bin','OutputType','bit');
-txData1 = txData1.';
-num = (ceil(length(txData1)/K/log2(M)));
-L =(num +mod(num ,2))*K*log2(M);
-addbit = L-length(txData1);
-txData = [txData1 zeros(1,addbit)];
-rsEncoder = comm.RSEncoder(N,K,'BitInput',true);
-encData = rsEncoder(txData.');% Encode the data.
-txSig = qammod(encData,M,'bin','InputType','bit');% Apply 64-QAM modulation.
 end
 
